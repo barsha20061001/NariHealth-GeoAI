@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ArrowUp, X } from "lucide-react";
 
 import heroImg from "../assets/hero.jpg";
 
@@ -31,6 +32,19 @@ import anemiaImg from "../assets/anemia.jpg";
 import menstrualImg from "../assets/menstrual.jpg";
 
 export default function Home() {
+    const [showTop, setShowTop] = useState(false);
+const [showDashboard, setShowDashboard] = useState(false);
+
+useEffect(() => {
+  const handleScroll = () => {
+    setShowTop(window.scrollY > 400);
+  };
+
+  window.addEventListener("scroll", handleScroll);
+
+  return () => window.removeEventListener("scroll", handleScroll);
+}, []);
+
 const [darkMode, setDarkMode] = useState(false);
   const features = [
     ["AI Risk Engine", Brain, "PCOS, cancer, anemia and menstrual health risk prediction."],
@@ -74,18 +88,37 @@ const [darkMode, setDarkMode] = useState(false);
   },
 ];
 
-function Counter({ value, suffix = "+" }) {
+
+
+const Counter = ({ end, suffix = "" }) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const duration = 1200;
+    const increment = end / (duration / 20);
+
+    const timer = setInterval(() => {
+      start += increment;
+
+      if (start >= end) {
+        setCount(end);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(start));
+      }
+    }, 20);
+
+    return () => clearInterval(timer);
+  }, [end]);
+
   return (
-    <motion.span
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      viewport={{ once: true }}
-    >
-      {value}{suffix}
-    </motion.span>
+    <>
+      {count}
+      {suffix}
+    </>
   );
-}
+};
 
   return (
     <div
@@ -210,7 +243,9 @@ function Counter({ value, suffix = "+" }) {
         Start Screening <ArrowRight />
       </button>
 
-      <button className="rounded-2xl bg-white text-slate-900 px-8 py-4 font-bold shadow-xl border border-pink-700 hover:scale-105 transition">
+      <button
+       onClick={() => setShowDashboard(true)}
+       className="rounded-2xl bg-white text-slate-900 px-8 py-4 font-bold shadow-xl border border-pink-700 hover:scale-105 transition">
         View Dashboard
       </button>
     </div>
@@ -230,17 +265,17 @@ function Counter({ value, suffix = "+" }) {
 
       <div className="grid grid-cols-3 gap-4 mt-5 ">
         <div className="bg-pink-50 rounded-3xl p-5  ">
-          <h3 className="text-3xl font-black text-pink-600 "><Counter value="50K" /></h3>
+          <h3 className="text-3xl font-black text-pink-600 "><Counter end={50} suffix="K+" /></h3>
           <p className="text-sm text-slate-500">Women screened</p>
         </div>
 
         <div className="bg-purple-50 rounded-3xl p-5">
-          <h3 className="text-3xl font-black text-purple-600"><Counter value="500" /></h3>
+          <h3 className="text-3xl font-black text-purple-600"><Counter end={500} suffix="+" /></h3>
           <p className="text-sm text-slate-500">Hotspots found</p>
         </div>
 
         <div className="bg-teal-50 rounded-3xl p-5">
-          <h3 className="text-3xl font-black text-teal-600"><Counter value="100" /></h3>
+          <h3 className="text-3xl font-black text-teal-600"><Counter end={100} suffix="+" /></h3>
           <p className="text-sm text-slate-500">Camps planned</p>
         </div>
       </div>
@@ -510,6 +545,95 @@ function Counter({ value, suffix = "+" }) {
   
   
 </footer>
+
+{showDashboard && (
+  <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center px-6">
+    <div className="relative bg-white rounded-[2rem] max-w-5xl w-full p-8 shadow-2xl">
+      <button
+        onClick={() => setShowDashboard(false)}
+        className="absolute top-5 right-5 h-10 w-10 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center hover:bg-pink-600 hover:text-white transition"
+      >
+        <X size={22} />
+      </button>
+
+      <h2 className="text-4xl font-black text-slate-900">
+        Government Dashboard Preview
+      </h2>
+
+      <p className="mt-3 text-slate-600">
+        Area-wise women health hotspot tracking, alerts, AI reports and camp recommendations.
+      </p>
+
+      <div className="mt-8 rounded-[2rem] bg-[#071124] p-8 text-white">
+        <p className="text-pink-400 font-bold">
+          Live Government Dashboard
+        </p>
+
+        <h3 className="text-3xl font-black mt-2">
+          Women Health Hotspot Intelligence
+        </h3>
+
+        <div className="grid md:grid-cols-4 gap-5 mt-8">
+          <div className="bg-red-500 rounded-3xl p-6">
+            <p>Critical Zone</p>
+            <h4 className="text-3xl font-black mt-2">Ward 12</h4>
+            <p>High PCOS Risk</p>
+          </div>
+
+          <div className="bg-yellow-400 text-slate-900 rounded-3xl p-6">
+            <p>Medium Zone</p>
+            <h4 className="text-3xl font-black mt-2">Ward 8</h4>
+            <p>Needs monitoring</p>
+          </div>
+
+          <div className="bg-green-400 text-slate-900 rounded-3xl p-6">
+            <p>Stable Zone</p>
+            <h4 className="text-3xl font-black mt-2">Ward 3</h4>
+            <p>Low Risk</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-3xl p-6">
+            <p>AI Confidence</p>
+            <h4 className="text-3xl font-black mt-2">92%</h4>
+            <p>Prediction Accuracy</p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-5 mt-6">
+          <div className="bg-white/10 border border-white/10 rounded-3xl p-6">
+            <h4 className="font-black text-xl">Alert Sent</h4>
+            <p className="text-white/60 mt-2">
+              ASHA worker notified for urgent follow-up.
+            </p>
+          </div>
+
+          <div className="bg-white/10 border border-white/10 rounded-3xl p-6">
+            <h4 className="font-black text-xl">AI Report Generated</h4>
+            <p className="text-white/60 mt-2">
+              Monthly hotspot report is ready.
+            </p>
+          </div>
+
+          <div className="bg-white/10 border border-white/10 rounded-3xl p-6">
+            <h4 className="font-black text-xl">Camp Recommended</h4>
+            <p className="text-white/60 mt-2">
+              Ward 12 needs screening camp.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+{showTop && (
+  <button
+    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+    className="fixed bottom-8 right-8 z-50 h-14 w-14 rounded-full bg-pink-600 text-white flex items-center justify-center shadow-2xl hover:scale-110 transition"
+  >
+    <ArrowUp size={26} />
+  </button>
+)}
 
     </div>
   );
